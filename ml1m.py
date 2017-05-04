@@ -3,12 +3,12 @@
 # Author: Zhiheng Zhang (405630376@qq.com)
 #
 import pandas as pd
-from reference.RecQ.tool import config
+from tool import config
 import time
 from main.main import RecQ
 def preprocess():
-	default_1m_rating_path = "../dataset/ml-1m/ratings.dat"
-	default_1m_rating_output_path = "../dataset/ml-1m/ratings.csv"
+	default_1m_rating_path = "dataset/ml-1m/ratings.dat"
+	default_1m_rating_output_path = "dataset/ml-1m/ratings.csv"
 	ratings_df = pd.read_csv(default_1m_rating_path,sep="::", header=None,
 	                      names=["user", "item", "rate", "timestamp"],
 	                      engine="python")
