@@ -3,3 +3,4 @@ ml-1m/
 *.py[cod]
 dataset/*
 result
+results
