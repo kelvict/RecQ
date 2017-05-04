@@ -26,15 +26,7 @@ def update_conf(conf, conf_opt, grid):
 	for i in range(len(conf_opt)):
 		conf.config[grid.keys()[i]] = grid[grid.keys()[i]][conf_opt[i]]
 
-if __name__ == "__main__":
-	SVD_grid = {
-		"num.factors":[100,150,200],
-		"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0, 0.001, 0.02]],
-		"evaluation.setup":["-ap %f"%i for i in [0.9]]
-	}
-	svd_conf = config.Config("config/SVD.conf")
-	grid = SVD_grid
-	conf = svd_conf
+def run_conf(conf, grid={}):
 	opts_arr = []
 	for key in grid.keys():
 		opts_arr.append(tuple(grid[key]))
@@ -49,4 +41,36 @@ if __name__ == "__main__":
 		print "Run time: %f s" % (e - s)
 		sys.stdout.flush()
 
+if __name__ == "__main__":
+	SVD_grid = {
+		"num.factors":[100,150,200],
+		"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0, 0.001, 0.02]],
+		"evaluation.setup":["-ap %f"%i for i in [0.1]]
+	}
+	svd_conf = config.Config("config/SVD.conf")
+	run_conf(svd_conf, SVD_grid)
+
+	SVDPP_grid = {
+		"num.factors":[50,100,150],
+		"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.005, 0.01, 0.02]],
+		"evaluation.setup":["-ap %f"%i for i in [0.1]]
+	}
+	svdpp_conf = config.Config("config/SVD++.conf")
+	run_conf(svdpp_conf, SVDPP_grid)
+
+	PMF_grid = {
+		"num.factors":[50,100,150],
+		"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.005, 0.01, 0.02]],
+		"evaluation.setup":["-ap %f"%i for i in [0.1]]
+	}
+	pmf_conf = config.Config("config/PMF.conf")
+	run_conf(pmf_conf,PMF_grid)
+
+	SlopeOne_grid = {
+		"num.shrinkage":[30,20,40],
+		"num.neighbors":[20,10,30],
+		"evaluation.setup":["-ap %f"%i for i in [0.1]]
+	}
+	slope_one_conf = config.Config("config/SlopeOne.conf")
+	run_conf(slope_one_conf, SlopeOne_grid)
 
