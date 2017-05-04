@@ -12,7 +12,7 @@ class RecQ(object):
         self.testData = []  # testData
         self.relation = []
         self.measure = []
-        self.config =config
+        self.config = config
         self.ratingConfig = LineConfig(config['ratings.setup'])
         if self.config.contains('evaluation.setup'):
             self.evaluation = LineConfig(config['evaluation.setup'])

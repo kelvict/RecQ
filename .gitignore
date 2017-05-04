@@ -1,6 +1,5 @@
-.idea/
-results/
-dataset/
-visual/visualization
-*.pyc
-
+*.log
+ml-1m/
+*.py[cod]
+dataset/*
+result
