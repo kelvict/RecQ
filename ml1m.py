@@ -3,6 +3,7 @@
 # Author: Zhiheng Zhang (405630376@qq.com)
 #
 import pandas as pd
+import numpy as np
 from tool import config
 import time
 from main.main import RecQ
@@ -10,15 +11,40 @@ import sys
 import copy
 
 import itertools
+
+def shuffle(ratings_df, random_seed=0):
+	return ratings_df.iloc[np.random.permutation(len(ratings_df))].reset_index(drop=True)
+
+def split(ratings_df, trainset_rate=0.9):
+	mid = int(ratings_df.shape[0]*trainset_rate)
+	return ratings_df[:mid], ratings_df[mid:]
+
+def yelp_preprocess():
+	default_yelp_rating_path = "dataset/yelp/yelp_academic_dataset_review"
+	pass
+
 def preprocess():
 	default_1m_rating_path = "dataset/ml-1m/ratings.dat"
 	default_1m_rating_output_path = "dataset/ml-1m/ratings.csv"
+	default_1m_rating_shuffled_output_path = "dataset/ml-1m/ratings_%d.csv"
+	default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%f.csv"
+	default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%f.csv"
 	ratings_df = pd.read_csv(default_1m_rating_path,sep="::", header=None,
 	                      names=["user", "item", "rate", "timestamp"],
 	                      engine="python")
-	#claratings_df = pd.DataFrame()
 	ratings_df = ratings_df.drop(["timestamp"], axis=1)
 	ratings_df.to_csv(default_1m_rating_output_path, sep=" ",header=False, index=False)
+	seeds = [0, 1, 2, 3, 4]
+	trainset_rates = [i * 0.1 for i in range(0, 10)]
+	for seed in seeds:
+		for rate in trainset_rates:
+			shuffled_ratings_df = shuffle(copy.deepcopy(ratings_df), seed)
+			shuffled_ratings_df.to_csv(default_1m_rating_shuffled_output_path%(seed), sep=" ",header=False, index=False)
+
+			trainset_df, testset_df = split(shuffled_ratings_df, rate)
+			trainset_df.to_csv(default_1m_rating_trainset_path%(seed, rate), sep=" ",header=False, index=False)
+			testset_df.to_csv(default_1m_rating_testset_path%(seed, rate), sep=" ",header=False, index=False)
+
 	return ratings_df
 
 def update_conf(conf, conf_opt, grid):
@@ -65,9 +91,9 @@ if __name__ == "__main__":
 		run_conf(svdpp_conf, SVDPP_grid)
 	elif algo == "pmf":
 		PMF_grid = {
-			"num.factors":[50,100,150],
-			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.01, 0.005, 0.02]],
-			"evaluation.setup":["-ap %f"%i for i in [0.1]]
+			"num.factors":[150],
+			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
+			"evaluation.setup":["-ap %f"%i for i in [i * 0.1 for i in range(0, 10)]]
 		}
 		pmf_conf = config.Config("config/PMF.conf")
 		run_conf(pmf_conf,PMF_grid)
