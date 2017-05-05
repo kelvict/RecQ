@@ -69,8 +69,9 @@ def update_conf(conf, conf_opt, grid):
 def grid_search_NMF(argv):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
-	param_grid = {"n_epochs": [100], "n_factors": [100, 150, 50], "biased": [True]}
+	param_grid = {"n_epochs": [100], "n_factors": [20, 10, 30, 40], "biased": [True]}
 	grid_search = GridSearch(NMF, param_grid, verbose=2)
+	NMF()
 	seed_range = range(2)
 	rate_range = [i*0.1 for i in range(9,10)]
 	foldnames = gen_fold_names(seed_range, rate_range)
@@ -119,6 +120,15 @@ if __name__ == "__main__":
 	algo = argv[1]
 	if algo == "svd":
 		SVD_grid = {
+			"num.factors":[200],
+			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
+			"evaluation.setup":["-ap %f"%i for i in [0.1]]
+		}
+		svd_conf = config.Config("config/SVD.conf")
+		run_conf(svd_conf, SVD_grid)
+	elif algo == "yelp_svd":
+		SVD_grid = {
+			"ratings":["dataset/yelp/"],
 			"num.factors":[200],
 			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
 			"evaluation.setup":["-ap %f"%i for i in [0.1]]
