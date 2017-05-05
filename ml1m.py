@@ -40,8 +40,8 @@ def preprocess():
 	default_1m_rating_path = "dataset/ml-1m/ratings.dat"
 	default_1m_rating_output_path = "dataset/ml-1m/ratings.csv"
 	default_1m_rating_shuffled_output_path = "dataset/ml-1m/ratings_%d.csv"
-	default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%f.csv"
-	default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%f.csv"
+	default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%.1f.csv"
+	default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%.1f.csv"
 	ratings_df = pd.read_csv(default_1m_rating_path,sep="::", header=None,
 	                      names=["user", "item", "rate", "timestamp"],
 	                      engine="python")
