@@ -69,11 +69,10 @@ def update_conf(conf, conf_opt, grid):
 def grid_search_NMF(argv):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
-	param_grid = {"n_epochs": [100], "n_factors": [20, 10, 30, 40], "biased": [True]}
+	param_grid = {"n_epochs": [100], "n_factors": [10], "biased": [True]}
 	grid_search = GridSearch(NMF, param_grid, verbose=2)
-	NMF()
-	seed_range = range(2)
-	rate_range = [i*0.1 for i in range(9,10)]
+	seed_range = range(5)
+	rate_range = [i*0.1 for i in [j for j in range(1,10)]]
 	foldnames = gen_fold_names(seed_range, rate_range)
 	print "FoldName:", foldnames
 	filenames = gen_fold_filenames(seed_range, rate_range)
