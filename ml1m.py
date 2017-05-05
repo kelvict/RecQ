@@ -65,6 +65,22 @@ def update_conf(conf, conf_opt, grid):
 	for i in range(len(conf_opt)):
 		conf.config[grid.keys()[i]] = grid[grid.keys()[i]][conf_opt[i]]
 
+def run_with_surprise(argv):
+	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
+	reader = Reader(line_format="user item rating", sep=' ')
+	param_grid = {"n_epochs": [50], "n_factors": [50, 100, 150], }
+	grid_search = GridSearch(NMF, param_grid)
+	data = Dataset.load_from_file("dataset/ml-1m/ratings.csv", reader)
+	data.split(n_folds=10)
+	grid_search.evaluate(data)
+
+	print grid_search.best_params["RMSE"]
+	print grid_search.best_score["RMSE"]
+	print grid_search.cv_results
+
+
+
+
 def run_conf(conf, grid={}):
 	print "Run Conf %s"%conf.config['recommender']
 	opts_arr = []
@@ -119,6 +135,8 @@ if __name__ == "__main__":
 		}
 		slope_one_conf = config.Config("config/SlopeOne.conf")
 		run_conf(slope_one_conf, SlopeOne_grid)
+	elif algo == "nmf":
+		run_with_surprise(argv)
 	elif algo == "ml1m_preproc":
 		preprocess()
 	elif algo == "yelp_preproc":
