@@ -12,6 +12,12 @@ import copy
 import json
 import itertools
 
+default_1m_rating_path = "dataset/ml-1m/ratings.dat"
+default_1m_rating_output_path = "dataset/ml-1m/ratings.csv"
+default_1m_rating_shuffled_output_path = "dataset/ml-1m/ratings_%d.csv"
+default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%.1f.csv"
+default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%.1f.csv"
+
 def build_df(objs, keys):
 	df_dict = {}
 	for key in keys:
@@ -38,11 +44,6 @@ def yelp_preprocess():
 	reviews_df.to_csv(prefix+"ratings.csv", sep=" ",header=False, index=False)
 
 def preprocess():
-	default_1m_rating_path = "dataset/ml-1m/ratings.dat"
-	default_1m_rating_output_path = "dataset/ml-1m/ratings.csv"
-	default_1m_rating_shuffled_output_path = "dataset/ml-1m/ratings_%d.csv"
-	default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%.1f.csv"
-	default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%.1f.csv"
 	ratings_df = pd.read_csv(default_1m_rating_path,sep="::", header=None,
 	                      names=["user", "item", "rate", "timestamp"],
 	                      engine="python")
@@ -65,19 +66,36 @@ def update_conf(conf, conf_opt, grid):
 	for i in range(len(conf_opt)):
 		conf.config[grid.keys()[i]] = grid[grid.keys()[i]][conf_opt[i]]
 
-def run_with_surprise(argv):
+def grid_search_NMF(argv):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
 	param_grid = {"n_epochs": [100], "n_factors": [100, 150, 50], "biased": [True]}
 	grid_search = GridSearch(NMF, param_grid, verbose=2)
-	data = Dataset.load_from_file("dataset/ml-1m/ratings.csv", reader)
-	data.split(n_folds=10)
+	seed_range = range(2)
+	rate_range = [i*0.1 for i in range(9,10)]
+	foldnames = gen_fold_names(seed_range, rate_range)
+	print "FoldName:", foldnames
+	filenames = gen_fold_filenames(seed_range, rate_range)
+	data = Dataset.load_from_folds(filenames, reader)
 	grid_search.evaluate(data)
 
 	print 'grid_search.best_params["RMSE"]:', grid_search.best_params["RMSE"]
 	print 'grid_search.best_score["RMSE"]:', grid_search.best_score["RMSE"]
 	print 'grid_search.cv_results:', grid_search.cv_results
 
+def gen_fold_names(seed_range=[0, 1, 2, 3, 4], rate_range=[0.1, 0.2, 0.3]):
+	names = []
+	for i in seed_range:
+		for j in rate_range:
+			names.append(str(i)+" "+str(j))
+	return names
+
+def gen_fold_filenames(seed_range=[0, 1, 2, 3, 4], rate_range=[0.1, 0.2, 0.3]):
+	filenames = []
+	for i in seed_range:
+		for j in rate_range:
+			filenames.append((default_1m_rating_trainset_path%(i, j), default_1m_rating_testset_path%(i, j)))
+	return filenames
 def run_conf(conf, grid={}):
 	print "Run Conf %s"%conf.config['recommender']
 	opts_arr = []
@@ -133,7 +151,7 @@ if __name__ == "__main__":
 		slope_one_conf = config.Config("config/SlopeOne.conf")
 		run_conf(slope_one_conf, SlopeOne_grid)
 	elif algo == "nmf":
-		run_with_surprise(argv)
+		grid_search_NMF(argv)
 	elif algo == "ml1m_preproc":
 		preprocess()
 	elif algo == "yelp_preproc":
