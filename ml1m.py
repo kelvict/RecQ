@@ -34,6 +34,7 @@ def yelp_preprocess():
 	for line in open(prefix+academic_dataset_json_prefix%("review")):
 		reviews.append(json.loads(line))
 	reviews_df = build_df(reviews, keys=['user_id', 'business_id', 'stars'])
+	reviews_df = reviews_df[['user_id', 'business_id', 'stars']]
 	reviews_df.to_csv(prefix+"ratings.csv", sep=" ",header=False, index=False)
 
 def preprocess():
@@ -57,7 +58,6 @@ def preprocess():
 			trainset_df, testset_df = split(shuffled_ratings_df, rate)
 			trainset_df.to_csv(default_1m_rating_trainset_path%(seed, rate), sep=" ",header=False, index=False)
 			testset_df.to_csv(default_1m_rating_testset_path%(seed, rate), sep=" ",header=False, index=False)
-
 	return ratings_df
 
 def update_conf(conf, conf_opt, grid):
