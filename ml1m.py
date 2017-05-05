@@ -35,9 +35,9 @@ def run_conf(conf, grid={}):
 	for opts in itertools.product(*opts_arr):
 		for key, opt in zip(grid.keys(), opts):
 			conf.config[key] = opt
-		print svd_conf.config
+		print conf.config
 		s = time.clock()
-		recSys = RecQ(svd_conf)
+		recSys = RecQ(conf)
 		recSys.execute()
 		e = time.clock()
 		print "Run time: %f s" % (e - s)
