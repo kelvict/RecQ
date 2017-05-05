@@ -9,8 +9,15 @@ import time
 from main.main import RecQ
 import sys
 import copy
-
+import json
 import itertools
+
+def build_df(objs, keys):
+	df_dict = {}
+	for key in keys:
+		df_dict[key] = [obj[key] for obj in objs]
+	df = pd.DataFrame(df_dict)
+	return df
 
 def shuffle(ratings_df, random_seed=0):
 	return ratings_df.iloc[np.random.permutation(len(ratings_df))].reset_index(drop=True)
@@ -20,8 +27,14 @@ def split(ratings_df, trainset_rate=0.9):
 	return ratings_df[:mid], ratings_df[mid:]
 
 def yelp_preprocess():
-	default_yelp_rating_path = "dataset/yelp/yelp_academic_dataset_review"
-	pass
+	prefix = "dataset/yelp/"
+	academic_dataset_json_prefix = "yelp_academic_dataset_%s.json"
+	reviews = []
+
+	for line in open(prefix+academic_dataset_json_prefix%("review")):
+		reviews.append(json.loads(line))
+	reviews_df = build_df(reviews, keys=['user_id', 'business_id', 'stars'])
+	reviews_df.to_csv(prefix+"ratings.csv", sep=" ",header=False, index=False)
 
 def preprocess():
 	default_1m_rating_path = "dataset/ml-1m/ratings.dat"
@@ -105,5 +118,9 @@ if __name__ == "__main__":
 		}
 		slope_one_conf = config.Config("config/SlopeOne.conf")
 		run_conf(slope_one_conf, SlopeOne_grid)
+	elif algo == "ml1m_preproc":
+		preprocess()
+	elif algo == "yelp_preproc":
+		yelp_preprocess()
 	else:
 		raise Exception("Wrong algo name!")
