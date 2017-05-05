@@ -68,18 +68,15 @@ def update_conf(conf, conf_opt, grid):
 def run_with_surprise(argv):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
-	param_grid = {"n_epochs": [50], "n_factors": [50, 100, 150], }
-	grid_search = GridSearch(NMF, param_grid)
+	param_grid = {"n_epochs": [100], "n_factors": [100, 150, 50], "biased": [True]}
+	grid_search = GridSearch(NMF, param_grid, verbose=2)
 	data = Dataset.load_from_file("dataset/ml-1m/ratings.csv", reader)
 	data.split(n_folds=10)
 	grid_search.evaluate(data)
 
-	print grid_search.best_params["RMSE"]
-	print grid_search.best_score["RMSE"]
-	print grid_search.cv_results
-
-
-
+	print 'grid_search.best_params["RMSE"]:', grid_search.best_params["RMSE"]
+	print 'grid_search.best_score["RMSE"]:', grid_search.best_score["RMSE"]
+	print 'grid_search.cv_results:', grid_search.cv_results
 
 def run_conf(conf, grid={}):
 	print "Run Conf %s"%conf.config['recommender']
