@@ -33,7 +33,7 @@ def run_conf(conf, grid={}):
 		opts_arr.append(tuple(grid[key]))
 	print [i for i in itertools.product(*opts_arr)]
 	for opts in itertools.product(*opts_arr):
-		for key, opt in zip(SVD_grid.keys(), opts):
+		for key, opt in zip(grid.keys(), opts):
 			conf.config[key] = opt
 		print svd_conf.config
 		s = time.clock()
