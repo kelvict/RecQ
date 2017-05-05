@@ -106,7 +106,8 @@ if __name__ == "__main__":
 		PMF_grid = {
 			"num.factors":[150],
 			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
-			"evaluation.setup":["-ap %f"%i for i in [i * 0.1 for i in range(0, 10)]]
+			"evaluation.setup":["-ap %.1f"%i for i in [i * 0.1 for i in range(1, 10)]],
+			"ratings": ["dataset/ml-1m/ratings_%d.csv"%i for i in [0, 1]]
 		}
 		pmf_conf = config.Config("config/PMF.conf")
 		run_conf(pmf_conf,PMF_grid)
