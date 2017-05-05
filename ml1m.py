@@ -128,8 +128,8 @@ if __name__ == "__main__":
 		run_conf(svd_conf, SVD_grid)
 	elif algo == "yelp_svd":
 		SVD_grid = {
-			"ratings":["dataset/yelp/"],
-			"num.factors":[200],
+			"ratings":["dataset/yelp/ratings.csv"],
+			"num.factors":[100],
 			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
 			"evaluation.setup":["-ap %f"%i for i in [0.1]]
 		}
