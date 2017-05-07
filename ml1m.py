@@ -83,7 +83,8 @@ def update_conf(conf, conf_opt, grid):
 	for i in range(len(conf_opt)):
 		conf.config[grid.keys()[i]] = grid[grid.keys()[i]][conf_opt[i]]
 
-def grid_search_NMF(argv):
+
+def grid_search_NMF(argv, data_type="ml1m"):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
 	param_grid = {"n_epochs": [100], "n_factors": [10], "biased": [True]}
@@ -92,7 +93,12 @@ def grid_search_NMF(argv):
 	rate_range = [i*0.1 for i in [j for j in range(1,10)]]
 	foldnames = gen_fold_names(seed_range, rate_range)
 	print "FoldName:", foldnames
-	filenames = gen_fold_filenames(seed_range, rate_range)
+	if data_type == "ml1m":
+		filenames = gen_fold_filenames(seed_range, rate_range)
+	elif data_type == "yelp":
+		filenames = gen_fold_filenames(seed_range, rate_range,
+		                               trainset_path=default_yelp_rating_trainset_path,
+		                               testset_path=default_yelp_rating_testset_path)
 	data = Dataset.load_from_folds(filenames, reader)
 	grid_search.evaluate(data)
 
@@ -107,12 +113,14 @@ def gen_fold_names(seed_range=[0, 1, 2, 3, 4], rate_range=[0.1, 0.2, 0.3]):
 			names.append(str(i)+" "+str(j))
 	return names
 
-def gen_fold_filenames(seed_range=[0, 1, 2, 3, 4], rate_range=[0.1, 0.2, 0.3]):
+def gen_fold_filenames(seed_range=[0, 1, 2, 3, 4], rate_range=[0.1, 0.2, 0.3],
+                       trainset_path=default_1m_rating_trainset_path, testset_path=default_1m_rating_testset_path):
 	filenames = []
 	for i in seed_range:
 		for j in rate_range:
-			filenames.append((default_1m_rating_trainset_path%(i, j), default_1m_rating_testset_path%(i, j)))
+			filenames.append((trainset_path%(i, j), testset_path%(i, j)))
 	return filenames
+
 def run_conf(conf, grid={}):
 	print "Run Conf %s"%conf.config['recommender']
 	opts_arr = []
@@ -189,6 +197,8 @@ if __name__ == "__main__":
 		run_conf(slope_one_conf, SlopeOne_grid)
 	elif algo == "nmf":
 		grid_search_NMF(argv)
+	elif algo == "yelp_nmf":
+		grid_search_NMF(argv, data_type="yelp")
 	elif algo == "ml1m_preproc":
 		preprocess()
 	elif algo == "yelp_preproc":
