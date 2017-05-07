@@ -151,6 +151,17 @@ if __name__ == "__main__":
 		}
 		pmf_conf = config.Config("config/PMF.conf")
 		run_conf(pmf_conf,PMF_grid)
+	elif algo == "yelp_pmf":
+		PMF_grid = {
+			"num.factors":[150, 50, 100],
+			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02, 0.005, 0.05]],
+			"evaluation.setup":["-ap %.1f"%i for i in [i * 0.1 for i in range(9, 10)]],
+			"ratings": "dataset/yelp/ratings.csv",
+			"item.ranking": "off -topN 0",
+			"output.setup": "off -dir results/"
+		}
+		pmf_conf = config.Config("config/PMF.conf")
+		run_conf(pmf_conf, PMF_grid)
 	elif algo == "slopeone":
 		SlopeOne_grid = {
 			"num.shrinkage":[30,20,40],
