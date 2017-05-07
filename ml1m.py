@@ -18,6 +18,12 @@ default_1m_rating_shuffled_output_path = "dataset/ml-1m/ratings_%d.csv"
 default_1m_rating_trainset_path = "dataset/ml-1m/ratings_trainset_%d_%.1f.csv"
 default_1m_rating_testset_path = "dataset/ml-1m/ratings_testset_%d_%.1f.csv"
 
+default_yelp_rating_path = "dataset/yelp/ratings.dat"
+default_yelp_rating_output_path = "dataset/yelp/ratings.csv"
+default_yelp_rating_shuffled_output_path = "dataset/yelp/ratings_%d.csv"
+default_yelp_rating_trainset_path = "dataset/yelp/ratings_trainset_%d_%.1f.csv"
+default_yelp_rating_testset_path = "dataset/yelp/ratings_testset_%d_%.1f.csv"
+
 def build_df(objs, keys):
 	df_dict = {}
 	for key in keys:
@@ -41,7 +47,18 @@ def yelp_preprocess():
 		reviews.append(json.loads(line))
 	reviews_df = build_df(reviews, keys=['user_id', 'business_id', 'stars'])
 	reviews_df = reviews_df[['user_id', 'business_id', 'stars']]
-	reviews_df.to_csv(prefix+"ratings.csv", sep=" ",header=False, index=False)
+	reviews_df.to_csv(default_yelp_rating_path, sep=" ",header=False, index=False)
+	seeds = [0, 1, 2, 3, 4]
+	trainset_rates = [i * 0.1 for i in range(0, 10)]
+	for seed in seeds:
+		for rate in trainset_rates:
+			shuffled_ratings_df = shuffle(copy.deepcopy(reviews_df), seed)
+			shuffled_ratings_df.to_csv(default_yelp_rating_shuffled_output_path%(seed), sep=" ",header=False, index=False)
+
+			trainset_df, testset_df = split(shuffled_ratings_df, rate)
+			trainset_df.to_csv(default_yelp_rating_trainset_path%(seed, rate), sep=" ",header=False, index=False)
+			testset_df.to_csv(default_yelp_rating_testset_path%(seed, rate), sep=" ",header=False, index=False)
+	return reviews_df
 
 def preprocess():
 	ratings_df = pd.read_csv(default_1m_rating_path,sep="::", header=None,
