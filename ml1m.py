@@ -88,7 +88,7 @@ def grid_search_NMF(argv, data_type="ml1m"):
 	from surprise import NMF, Dataset, evaluate, print_perf, Reader, GridSearch
 	reader = Reader(line_format="user item rating", sep=' ')
 	param_grid = {"n_epochs": [100], "n_factors": [10, 30, 50, 100, 200], "biased": [True]}
-	grid_search = GridSearch(NMF, param_grid, verbose=2)
+	grid_search = GridSearch(NMF, param_grid, verbose=1)
 	seed_range = range(5)
 	rate_range = [i*0.1 for i in [j for j in range(1,10)]]
 	foldnames = gen_fold_names(seed_range, rate_range)
@@ -155,7 +155,8 @@ if __name__ == "__main__":
 			"ratings":["dataset/yelp/ratings.csv"],
 			"num.factors":[100],
 			"reg.lambda":["-u %f -i %f -b %f -s %f"%(i,i,i,i) for i in [0.02]],
-			"evaluation.setup":["-ap %f"%i for i in [0.1]]
+			"evaluation.setup":["-testSet dataset/yelp/ratings_testset_1_0.1.csv"],
+			"num.max.iter":[50]
 		}
 		svd_conf = config.Config("config/SVD.conf")
 		run_conf(svd_conf, SVD_grid)
